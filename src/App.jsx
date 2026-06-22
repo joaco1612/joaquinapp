@@ -1,8 +1,18 @@
 import { useState, useEffect } from "react";
- 
+import { supabase } from "./lib/supabase";
+
 const store = {
-  async get(k) { try { const r = await window.storage.get(k); return r ? JSON.parse(r.value) : null; } catch { return null; } },
-  async set(k, v) { try { await window.storage.set(k, JSON.stringify(v)); } catch {} },
+  async get(k) {
+    try {
+      const { data } = await supabase.from("user_data").select("value").eq("key", k).single();
+      return data ? JSON.parse(data.value) : null;
+    } catch { return null; }
+  },
+  async set(k, v) {
+    try {
+      await supabase.from("user_data").upsert({ key: k, value: JSON.stringify(v) });
+    } catch {}
+  },
 };
  
 const DROUT = [
